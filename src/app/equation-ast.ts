@@ -1,5 +1,5 @@
-import { anyChar, Parjser } from 'parjs';
-import { map, then, manySepBy } from 'parjs/combinators';
+import { Parjser, digit, anyCharOf } from 'parjs';
+import { map, manySepBy, maybe, then } from 'parjs/combinators';
 
 export class EquationAst {
   constructor(public readonly rootNode: EquationNode) {}
@@ -20,16 +20,43 @@ export interface AstNode {
   children?: AstNode[];
 }
 
-export interface SumNode {
-
+export interface NumberNode extends AstNode {
+  type: 'number',
+  value: number,
 }
-const pSum: Parjser<SumNode> = anyChar();
+const pNumber: Parjser<NumberNode> = digit(10).pipe(
+  manySepBy(''),
+  map(digits => ({ type: 'number', value: parseInt(digits.join('')) })),
+);
 
-export interface EquationNode {
+const pSign = maybe<'-', '+'>('+')(anyCharOf('-') as Parjser<'-'>);
+
+export interface TermNode extends AstNode {
+  type: 'term',
+  sign: '+' | '-',
+  children: NumberNode[],
+}
+const pTerm: Parjser<TermNode> = pSign.pipe(
+  then(pNumber.pipe(
+    manySepBy('*'),
+  )),
+  map(([sign, children]) => ({ type: 'term', sign, children })),
+);
+
+export interface ExpressionNode extends AstNode {
+  type: 'expression',
+  children: TermNode[],
+}
+const pExpression: Parjser<ExpressionNode> = pTerm.pipe(
+  manySepBy('+'),
+  map(children => ({ type: 'expression', children }))
+);
+
+export interface EquationNode extends AstNode {
   type: 'equation',
-  children: SumNode[],
+  children: ExpressionNode[],
 }
-const pEquation: Parjser<EquationNode> = pSum.pipe(
+const pEquation: Parjser<EquationNode> = pExpression.pipe(
   manySepBy('='),
   map(children => ({ type: 'equation', children })),
 );
