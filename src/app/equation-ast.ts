@@ -1,5 +1,5 @@
-import { Parjser, digit, anyCharOf } from 'parjs';
-import { map, manySepBy, maybe, then } from 'parjs/combinators';
+import { Parjser, digit, anyCharOf, letter } from 'parjs';
+import { map, manySepBy, maybe, then, or, many } from 'parjs/combinators';
 
 export class EquationAst {
   constructor(public readonly rootNode: EquationNode) {}
@@ -9,6 +9,7 @@ export class EquationAst {
     if (res.isOk) {
       return new EquationAst(res.value);
     } else {
+      console.warn(res.value);
       return null;
     }
   }
@@ -25,19 +26,31 @@ export interface NumberNode extends AstNode {
   value: number,
 }
 const pNumber: Parjser<NumberNode> = digit(10).pipe(
-  manySepBy(''),
+  many(),
   map(digits => ({ type: 'number', value: parseInt(digits.join('')) })),
 );
 
-const pSign = maybe<'-', '+'>('+')(anyCharOf('-') as Parjser<'-'>);
+export interface PronumeralNode extends AstNode {
+  type: 'pronumeral',
+  value: string,
+}
+const pPronumeral: Parjser<PronumeralNode> = letter().pipe(
+  map(value => ({ type: 'pronumeral', value })),
+);
+
+export type SubExpressionNode = NumberNode | PronumeralNode;
+const pSubExpression: Parjser<SubExpressionNode> = or<PronumeralNode, NumberNode>(pNumber)(pPronumeral);
+
+export type Sign = '+' | '-';
+const pSign: Parjser<Sign> = maybe<'-', '+'>('+')(anyCharOf('-') as Parjser<'-'>);
 
 export interface TermNode extends AstNode {
   type: 'term',
-  sign: '+' | '-',
-  children: NumberNode[],
+  sign: Sign,
+  children: SubExpressionNode[],
 }
 const pTerm: Parjser<TermNode> = pSign.pipe(
-  then(pNumber.pipe(
+  then(pSubExpression.pipe(
     manySepBy('*'),
   )),
   map(([sign, children]) => ({ type: 'term', sign, children })),
