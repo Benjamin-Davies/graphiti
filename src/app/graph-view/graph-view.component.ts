@@ -1,13 +1,14 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, Input, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, Input, SimpleChanges, OnChanges, OnInit, OnDestroy } from '@angular/core';
 import { Equation } from '../equation';
-import {ExecEquationService} from '../exec-equation.service';
+import { ExecEquationService } from '../exec-equation.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-graph-view',
   templateUrl: './graph-view.component.html',
   styleUrls: ['./graph-view.component.styl']
 })
-export class GraphViewComponent implements AfterViewInit, OnChanges {
+export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
   @Input() equation: Equation;
 
@@ -23,19 +24,22 @@ export class GraphViewComponent implements AfterViewInit, OnChanges {
 
   constructor(private execEquation: ExecEquationService) { }
 
-  ngAfterViewInit(): void {
-    this.render();
-    // TODO: temporary
-    setInterval(() => this.render(), 1000);
+  subCache: Subscription | null = null;
+  ngOnInit(): void {
+    this.subCache = this.equation.updates.subscribe({ next: () => this.render() })
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.hasOwnProperty('equations')) {
-      this.render();
-    }
+  ngAfterViewInit(): void {
+    this.render();
+  }
+
+  ngOnDestroy(): void {
+    this.subCache.unsubscribe();
+    this.subCache = null;
   }
 
   render(): void {
+    console.log(this.equation.text);
     const ctx = this.ctx;
     if (!ctx) return;
     const { width, height } = ctx.canvas;
