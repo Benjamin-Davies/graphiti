@@ -39,10 +39,10 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   render(): void {
-    console.log(this.equation.text);
     const ctx = this.ctx;
     if (!ctx) return;
-    const { width, height } = ctx.canvas;
+    const width = ctx.canvas.width = ctx.canvas.clientWidth;
+    const height = ctx.canvas.height = ctx.canvas.clientHeight;
 
     ctx.clearRect(0, 0, width, height);
 
