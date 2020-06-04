@@ -4,11 +4,13 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { EquationPanelComponent } from './equation-panel/equation-panel.component';
+import { GraphViewComponent } from './graph-view/graph-view.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    EquationPanelComponent
+    EquationPanelComponent,
+    GraphViewComponent
   ],
   imports: [
     BrowserModule,

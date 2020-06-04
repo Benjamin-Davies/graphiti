@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Equation } from '../equation';
 
 @Component({
@@ -6,18 +6,14 @@ import { Equation } from '../equation';
   templateUrl: './equation-panel.component.html',
   styleUrls: ['./equation-panel.component.styl']
 })
-export class EquationPanelComponent implements OnInit {
+export class EquationPanelComponent {
 
-  equation: Equation = new Equation();
+  @Input() equation: Equation;
 
   get viewAst() {
     return JSON.stringify(this.equation.ast);
   }
 
   constructor() { }
-
-  ngOnInit() {
-    console.log('init')
-  }
 
 }
