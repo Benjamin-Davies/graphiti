@@ -1,6 +1,6 @@
 import { Parjser, digit, anyCharOf, letter } from 'parjs';
-import { map, manySepBy, maybe, then, or, many } from 'parjs/combinators';
-import { multiple } from './parser.utils';
+import { map, maybe, then, or } from 'parjs/combinators';
+import { multiple, multipleSepBy } from './parser.utils';
 
 export class EquationAst {
   constructor(public readonly rootNode: EquationNode) {}
@@ -52,7 +52,7 @@ export interface TermNode extends AstNode {
 }
 const pTerm: Parjser<TermNode> = pSign.pipe(
   then(pSubExpression.pipe(
-    manySepBy('*'),
+    multiple(),
   )),
   map(([sign, children]) => ({ type: 'term', sign, children })),
 );
@@ -62,7 +62,7 @@ export interface ExpressionNode extends AstNode {
   children: TermNode[],
 }
 const pExpression: Parjser<ExpressionNode> = pTerm.pipe(
-  manySepBy('+'),
+  multipleSepBy('+'),
   map(children => ({ type: 'expression', children }))
 );
 
@@ -71,6 +71,6 @@ export interface EquationNode extends AstNode {
   children: ExpressionNode[],
 }
 const pEquation: Parjser<EquationNode> = pExpression.pipe(
-  manySepBy('='),
+  multipleSepBy('='),
   map(children => ({ type: 'equation', children })),
 );
