@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, SimpleChanges, OnChanges, OnInit, OnDestroy } from '@angular/core';
 import { Equation } from '../equation';
 import { ExecEquationService } from '../exec-equation.service';
-import { Subscription } from 'rxjs';
+import { Subscription, merge, fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-graph-view',
@@ -26,7 +26,9 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
   subCache: Subscription | null = null;
   ngOnInit(): void {
-    this.subCache = this.equation.updates.subscribe({ next: () => this.render() })
+    const resize = fromEvent(window, 'resize');
+    const updates = merge(this.equation.updates, resize);
+    this.subCache = updates.subscribe({ next: () => this.render() })
   }
 
   ngAfterViewInit(): void {

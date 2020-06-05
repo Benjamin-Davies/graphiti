@@ -1,5 +1,6 @@
 import { Parjser, digit, anyCharOf, letter } from 'parjs';
 import { map, manySepBy, maybe, then, or, many } from 'parjs/combinators';
+import { multiple } from './parser.utils';
 
 export class EquationAst {
   constructor(public readonly rootNode: EquationNode) {}
@@ -26,7 +27,7 @@ export interface NumberNode extends AstNode {
   value: number,
 }
 const pNumber: Parjser<NumberNode> = digit(10).pipe(
-  many(),
+  multiple(),
   map(digits => ({ type: 'number', value: parseInt(digits.join('')) })),
 );
 
