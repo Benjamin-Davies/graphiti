@@ -43,7 +43,7 @@ export type SubExpressionNode = NumberNode | PronumeralNode;
 const pSubExpression: Parjser<SubExpressionNode> = or<PronumeralNode, NumberNode>(pNumber)(pPronumeral);
 
 export type Sign = '+' | '-';
-const pSign: Parjser<Sign> = maybe<'-', '+'>('+')(anyCharOf('-') as Parjser<'-'>);
+const pSign: Parjser<Sign> = maybe<Sign, '+'>('+')(anyCharOf('+-') as Parjser<Sign>);
 
 export interface TermNode extends AstNode {
   type: 'term',
@@ -62,7 +62,7 @@ export interface ExpressionNode extends AstNode {
   children: TermNode[],
 }
 const pExpression: Parjser<ExpressionNode> = pTerm.pipe(
-  multipleSepBy('+'),
+  multiple(),
   map(children => ({ type: 'expression', children }))
 );
 
