@@ -1,4 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 
 import { EquationPanelComponent } from './equation-panel.component';
 import { Equation } from '../equation';
@@ -9,7 +10,8 @@ describe('EquationPanelComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ EquationPanelComponent ]
+      declarations: [ EquationPanelComponent ],
+      imports: [ FormsModule ]
     })
     .compileComponents();
   }));

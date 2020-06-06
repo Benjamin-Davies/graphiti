@@ -36,8 +36,10 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subCache.unsubscribe();
-    this.subCache = null;
+    if (this.subCache) {
+      this.subCache.unsubscribe();
+      this.subCache = null;
+    }
   }
 
   render(): void {

@@ -1,12 +1,21 @@
 import { TestBed, async } from '@angular/core/testing';
+import {FormsModule} from '@angular/forms';
+
 import { AppComponent } from './app.component';
+import { EquationPanelComponent } from './equation-panel/equation-panel.component';
+import { GraphViewComponent } from './graph-view/graph-view.component';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
-        AppComponent
+        AppComponent,
+        EquationPanelComponent,
+        GraphViewComponent
       ],
+      imports: [
+        FormsModule
+      ]
     }).compileComponents();
   }));
 
