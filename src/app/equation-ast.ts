@@ -57,11 +57,20 @@ const pTerm: Parjser<TermNode> = pSign.pipe(
   map(([sign, children]) => ({ type: 'term', sign, children })),
 );
 
-export interface ExpressionNode extends AstNode {
-  type: 'expression',
+export interface ProductNode extends AstNode {
+  type: 'product',
   children: TermNode[],
 }
-const pExpression: Parjser<ExpressionNode> = pTerm.pipe(
+const pProduct: Parjser<ProductNode> = pTerm.pipe(
+  multipleSepBy('*'),
+  map(children => ({ type: 'product', children })),
+);
+
+export interface ExpressionNode extends AstNode {
+  type: 'expression',
+  children: ProductNode[],
+}
+const pExpression: Parjser<ExpressionNode> = pProduct.pipe(
   multiple(),
   map(children => ({ type: 'expression', children }))
 );

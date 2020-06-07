@@ -30,9 +30,12 @@ export class ExecEquationService {
       if (part.children.length === 1) {
         const term = part.children[0];
         if (term.children.length === 1) {
-          const subExpr = term.children[0];
-          if (subExpr.type === 'pronumeral') {
-            resultKeys.push(subExpr.value);
+          const prod = term.children[0];
+          if (prod.children.length === 1) {
+            const subExpr = prod.children[0];
+            if (subExpr.type === 'pronumeral') {
+              resultKeys.push(subExpr.value);
+            }
           }
         }
       }
@@ -57,6 +60,8 @@ export class ExecEquationService {
     switch (node.type) {
       case 'expression':
         return node.children.reduce((sum, exp) => sum + this.evalNode(exp, context), 0);
+      case 'product':
+        return node.children.reduce((prod, exp) => prod * this.evalNode(exp, context), 1);
       case 'term':
         return ((node as TermNode).sign === '-' ? -1 : 1)
           * node.children.reduce((prod, exp) => prod * this.evalNode(exp, context), 1);
