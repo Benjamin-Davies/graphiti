@@ -19,3 +19,7 @@ export function multipleSepBy<T>(separator: ImplicitParjser<unknown>): ParjsComb
          (then (p) (separator)))
         (p)))
 }
+
+export function singleOrMap<A, B>(f: (arr: A[]) => B): ParjsCombinator<A[], A | B> {
+  return map(arr => arr.length === 1 ? arr[0] : f(arr));
+}

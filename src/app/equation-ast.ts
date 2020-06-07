@@ -1,6 +1,7 @@
 import { Parjser, digit, anyCharOf, letter } from 'parjs';
 import { map, maybe, then, or } from 'parjs/combinators';
-import { multiple, multipleSepBy } from './parser.utils';
+
+import { multiple, multipleSepBy, singleOrMap } from './parser.utils';
 
 export class EquationAst {
   constructor(public readonly rootNode: EquationNode) {}
@@ -61,18 +62,18 @@ export interface ProductNode extends AstNode {
   type: 'product',
   children: TermNode[],
 }
-const pProduct: Parjser<ProductNode> = pTerm.pipe(
+const pProduct: Parjser<ProductNode | TermNode> = pTerm.pipe(
   multipleSepBy('*'),
-  map(children => ({ type: 'product', children })),
+  singleOrMap(children => ({ type: 'product', children })),
 );
 
 export interface ExpressionNode extends AstNode {
   type: 'expression',
-  children: ProductNode[],
+  children: (ProductNode | TermNode)[],
 }
-const pExpression: Parjser<ExpressionNode> = pProduct.pipe(
+const pExpression: Parjser<ExpressionNode | ProductNode | TermNode> = pProduct.pipe(
   multiple(),
-  map(children => ({ type: 'expression', children }))
+  singleOrMap(children => ({ type: 'expression', children }))
 );
 
 export interface EquationNode extends AstNode {
