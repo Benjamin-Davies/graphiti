@@ -20,24 +20,15 @@ export class ExecEquationService {
     }
 
     // Extract the parts
-    const parts = rootNode.children.slice();
-    const expression = parts.pop();
+    const exps = rootNode.children.slice();
+    const expression = exps.pop();
 
     // TODO: replace with inverse functionality
     // Get the result variables
     const resultKeys = [];
-    for (const part of parts) {
-      if (part.children.length === 1) {
-        const term = part.children[0];
-        if (term.children.length === 1) {
-          const prod = term.children[0];
-          if (prod.children.length === 1) {
-            const subExpr = prod.children[0];
-            if (subExpr.type === 'pronumeral') {
-              resultKeys.push(subExpr.value);
-            }
-          }
-        }
+    for (const exp of exps) {
+      if (exp.type === 'term' && exp.children.length === 1 && exp.children[0].type === 'pronumeral') {
+        resultKeys.push(exp.children[0].value);
       }
     }
     if (resultKeys.length === 0) {

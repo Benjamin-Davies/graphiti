@@ -62,25 +62,27 @@ export interface ProductNode extends AstNode {
   type: 'product',
   children: TermNode[],
 }
-const pProduct: Parjser<ProductNode | TermNode> = pTerm.pipe(
+const pProduct: Parjser<ExpressionNode> = pTerm.pipe(
   multipleSepBy('*'),
   singleOrMap(children => ({ type: 'product', children })),
 );
 
-export interface ExpressionNode extends AstNode {
-  type: 'expression',
-  children: (ProductNode | TermNode)[],
+export interface SumNode extends AstNode {
+  type: 'sum',
+  children: ExpressionNode[],
 }
-const pExpression: Parjser<ExpressionNode | ProductNode | TermNode> = pProduct.pipe(
+const pSum: Parjser<ExpressionNode> = pProduct.pipe(
   multiple(),
-  singleOrMap(children => ({ type: 'expression', children }))
+  singleOrMap(children => ({ type: 'sum', children }))
 );
+
+export type ExpressionNode = SumNode | ProductNode | TermNode;
 
 export interface EquationNode extends AstNode {
   type: 'equation',
   children: ExpressionNode[],
 }
-const pEquation: Parjser<EquationNode> = pExpression.pipe(
+const pEquation: Parjser<EquationNode> = pSum.pipe(
   multipleSepBy('='),
   map(children => ({ type: 'equation', children })),
 );
