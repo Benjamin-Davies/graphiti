@@ -1,5 +1,7 @@
-<p>
+<p *ngFor="let equation of equations.equations">
   <input [(ngModel)]="equation.text" autofocus>
 </p>
-<p>{{equation.text}}</p>
-<p>{{viewAst}}</p>
+
+<p>
+  <button (click)="newEquation()">New Equation</button>
+</p>
