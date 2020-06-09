@@ -8,20 +8,12 @@ import { EquationsService } from '../equations.service';
   templateUrl: './equation-panel.component.html',
   styleUrls: ['./equation-panel.component.styl']
 })
-export class EquationPanelComponent implements OnInit {
+export class EquationPanelComponent {
 
-  constructor(private equations: EquationsService) {}
+  constructor(public equations: EquationsService) {}
 
-  ngOnInit() {
+  newEquation() {
     this.equations.addEquation(new Equation());
-  }
-
-  get equation(): Equation {
-    return this.equations.equations[0];
-  }
-
-  get viewAst() {
-    return JSON.stringify(this.equation.ast);
   }
 
 }
