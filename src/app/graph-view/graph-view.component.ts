@@ -1,7 +1,8 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, SimpleChanges, OnChanges, OnInit, OnDestroy } from '@angular/core';
-import { Equation } from '../equation';
-import { ExecEquationService } from '../exec-equation.service';
 import { Subscription, merge, fromEvent } from 'rxjs';
+
+import { ExecEquationService } from '../exec-equation.service';
+import { EquationsService } from '../equations.service';
 
 @Component({
   selector: 'app-graph-view',
@@ -10,24 +11,25 @@ import { Subscription, merge, fromEvent } from 'rxjs';
 })
 export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
-  @Input() equation: Equation;
-
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
 
   ctxCache: CanvasRenderingContext2D | null = null;
   get ctx(): CanvasRenderingContext2D {
-    if (this.ctxCache?.canvas !== this.canvas.nativeElement) {
+    if (this.ctxCache?.canvas !== this.canvas?.nativeElement) {
       this.ctxCache = this.canvas.nativeElement.getContext('2d');
     }
     return this.ctxCache;
   }
 
-  constructor(private execEquation: ExecEquationService) { }
+  constructor(private equations: EquationsService, private execEquation: ExecEquationService) { }
 
   subCache: Subscription | null = null;
   ngOnInit(): void {
+    console.log(this.equations)
+    this.equations.updates.subscribe({next(x){console.log(x)}})
+
     const resize = fromEvent(window, 'resize');
-    const updates = merge(this.equation.updates, resize);
+    const updates = merge(this.equations.updates, resize);
     this.subCache = updates.subscribe({ next: () => this.render() })
   }
 
@@ -43,6 +45,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   render(): void {
+    console.log(this.equations.equations)
     const ctx = this.ctx;
     if (!ctx) return;
     const width = ctx.canvas.width = ctx.canvas.clientWidth;
@@ -50,15 +53,17 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ctx.clearRect(0, 0, width, height);
 
-    ctx.strokeStyle = 'black';
-    ctx.beginPath();
-    for (let sx = 0; sx < width; sx += 5) {
-      const x = 6 * (sx / width) - 3;
-      const { y } = this.execEquation.execEquation(this.equation, { x });
-      const sy = (-y / 6 + 0.5) * height;
-      ctx.lineTo(sx, sy);
+    for (const equation of this.equations.equations) {
+      ctx.strokeStyle = 'black';
+      ctx.beginPath();
+      for (let sx = 0; sx < width; sx += 5) {
+        const x = 6 * (sx / width) - 3;
+        const { y } = this.execEquation.execEquation(equation, { x });
+        const sy = (-y / 6 + 0.5) * height;
+        ctx.lineTo(sx, sy);
+      }
+      ctx.stroke();
     }
-    ctx.stroke();
   }
 
 }
