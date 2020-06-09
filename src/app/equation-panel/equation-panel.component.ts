@@ -13,8 +13,6 @@ export class EquationPanelComponent implements OnInit {
   constructor(private equations: EquationsService) {}
 
   ngOnInit() {
-    console.log(this.equations)
-    this.equations.updates.subscribe({next(x){console.log(x)}})
     this.equations.addEquation(new Equation());
   }
 

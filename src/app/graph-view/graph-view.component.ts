@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, Input, SimpleChanges, OnChanges, OnInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { Subscription, merge, fromEvent } from 'rxjs';
 
 import { ExecEquationService } from '../exec-equation.service';
@@ -25,9 +25,6 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
   subCache: Subscription | null = null;
   ngOnInit(): void {
-    console.log(this.equations)
-    this.equations.updates.subscribe({next(x){console.log(x)}})
-
     const resize = fromEvent(window, 'resize');
     const updates = merge(this.equations.updates, resize);
     this.subCache = updates.subscribe({ next: () => this.render() })
@@ -45,7 +42,6 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   render(): void {
-    console.log(this.equations.equations)
     const ctx = this.ctx;
     if (!ctx) return;
     const width = ctx.canvas.width = ctx.canvas.clientWidth;
