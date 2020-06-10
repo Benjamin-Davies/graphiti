@@ -18,11 +18,12 @@ jobs:
       run: npm ci
 
     - name: Build project
-      run: npm run build
+      run: npm run build -- --prod --root-href="/graphiti/"
 
     - name: Deploy
-      uses: JamesIves/github-pages-deploy-action@releases/v3
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: s0/git-publish-subdir-action@master
+      env:
+        REPO: self
         BRANCH: gh-pages
         FOLDER: dist
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
