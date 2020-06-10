@@ -16,4 +16,8 @@ export class EquationPanelComponent {
     this.equations.addEquation(new Equation());
   }
 
+  deleteEquation(equation: Equation) {
+    this.equations.deleteEquation(equation);
+  }
+
 }

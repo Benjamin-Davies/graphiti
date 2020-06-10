@@ -39,4 +39,11 @@ export class EquationsService {
     this.equations = newEquations;
   }
 
+  deleteEquation(equation: Equation) {
+    const newEquations = Array.from(this.equations);
+    const index = newEquations.indexOf(equation);
+    newEquations.splice(index, 1);
+    this.equations = newEquations;
+  }
+
 }
