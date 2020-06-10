@@ -21,7 +21,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     return this.ctxCache;
   }
 
-  constructor(private equations: EquationsService, private execEquation: ExecEquationService) { }
+  constructor(private equations: EquationsService, private execEquation: ExecEquationService, private host: ElementRef) { }
 
   subCache: Subscription | null = null;
   ngOnInit(): void {
@@ -43,9 +43,10 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
   render(): void {
     const ctx = this.ctx;
-    if (!ctx) return;
-    const width = ctx.canvas.width = ctx.canvas.clientWidth;
-    const height = ctx.canvas.height = ctx.canvas.clientHeight;
+    const host = this.host?.nativeElement;
+    if (!ctx || !host) return;
+    const width = ctx.canvas.width = host.clientWidth;
+    const height = ctx.canvas.height = host.clientHeight - 5;
 
     ctx.clearRect(0, 0, width, height);
 
