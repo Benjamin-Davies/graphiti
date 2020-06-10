@@ -18,7 +18,7 @@ jobs:
       run: npm ci
 
     - name: Build project
-      run: npm run build -- --prod --root-href="/graphiti/"
+      run: npm run build -- --prod --base-href="/graphiti/"
 
     - name: Deploy
       uses: s0/git-publish-subdir-action@master
