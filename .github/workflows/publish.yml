@@ -25,5 +25,5 @@ jobs:
       env:
         REPO: self
         BRANCH: gh-pages
-        FOLDER: dist
+        FOLDER: dist/graphiti/
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
