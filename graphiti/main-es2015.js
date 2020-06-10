@@ -179,11 +179,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function EquationPanelComponent_p_0_Template(rf, ctx) { if (rf & 1) {
+function EquationPanelComponent_p_2_Template(rf, ctx) { if (rf & 1) {
     const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵgetCurrentView"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "p");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "input", 2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("ngModelChange", function EquationPanelComponent_p_0_Template_input_ngModelChange_1_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3); const equation_r1 = ctx.$implicit; return equation_r1.text = $event; });
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("ngModelChange", function EquationPanelComponent_p_2_Template_input_ngModelChange_1_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3); const equation_r1 = ctx.$implicit; return equation_r1.text = $event; });
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
 } if (rf & 2) {
@@ -200,15 +200,19 @@ class EquationPanelComponent {
     }
 }
 EquationPanelComponent.ɵfac = function EquationPanelComponent_Factory(t) { return new (t || EquationPanelComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_equations_service__WEBPACK_IMPORTED_MODULE_2__["EquationsService"])); };
-EquationPanelComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: EquationPanelComponent, selectors: [["app-equation-panel"]], decls: 4, vars: 1, consts: [[4, "ngFor", "ngForOf"], [3, "click"], ["autofocus", "", 3, "ngModel", "ngModelChange"]], template: function EquationPanelComponent_Template(rf, ctx) { if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](0, EquationPanelComponent_p_0_Template, 2, 1, "p", 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "p");
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](2, "button", 1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function EquationPanelComponent_Template_button_click_2_listener() { return ctx.newEquation(); });
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](3, "New Equation");
+EquationPanelComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: EquationPanelComponent, selectors: [["app-equation-panel"]], decls: 6, vars: 1, consts: [[4, "ngFor", "ngForOf"], [3, "click"], ["autofocus", "", 3, "ngModel", "ngModelChange"]], template: function EquationPanelComponent_Template(rf, ctx) { if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "h1");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](1, "Graphiti");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](2, EquationPanelComponent_p_2_Template, 2, 1, "p", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](3, "p");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](4, "button", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function EquationPanelComponent_Template_button_click_4_listener() { return ctx.newEquation(); });
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](5, "New Equation");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     } if (rf & 2) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngForOf", ctx.equations.equations);
     } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_3__["NgForOf"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["DefaultValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["NgModel"]], styles: ["[_nghost-%COMP%] {\n  background: #fff;\n  flex-shrink: 1;\n  width: 20%;\n  overflow: none;\n  display: flex;\n  flex-direction: column;\n}\nul[_ngcontent-%COMP%], p[_ngcontent-%COMP%] {\n  margin: 0;\n  padding: 0;\n}\nul[_ngcontent-%COMP%] {\n  list-style: none;\n}\ninput[_ngcontent-%COMP%], button[_ngcontent-%COMP%] {\n  box-sizing: border-box;\n  width: 100%;\n}\n/*# sourceMappingURL=src/app/equation-panel/equation-panel.component.css.map */\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvZXF1YXRpb24tcGFuZWwvc3JjL2FwcC9lcXVhdGlvbi1wYW5lbC9lcXVhdGlvbi1wYW5lbC5jb21wb25lbnQuc3R5bCIsInNyYy9hcHAvZXF1YXRpb24tcGFuZWwvZXF1YXRpb24tcGFuZWwuY29tcG9uZW50LnN0eWwiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRSxnQkFBVztFQUNYLGNBQVk7RUFDWixVQUFNO0VBQ04sY0FBUztFQUVULGFBQVE7RUFDUixzQkFBZTtBQ0FqQjtBREVBOztFQUNFLFNBQU87RUFDUCxVQUFRO0FDQ1Y7QURDQTtFQUNFLGdCQUFXO0FDQ2I7QURDQTs7RUFDRSxzQkFBVztFQUNYLFdBQU07QUNFUjtBQUNBLDhFQUE4RSIsImZpbGUiOiJzcmMvYXBwL2VxdWF0aW9uLXBhbmVsL2VxdWF0aW9uLXBhbmVsLmNvbXBvbmVudC5zdHlsIiwic291cmNlc0NvbnRlbnQiOlsiOmhvc3RcbiAgYmFja2dyb3VuZCAjZmZmXG4gIGZsZXgtc2hyaW5rIDFcbiAgd2lkdGggMjAlXG4gIG92ZXJmbG93IG5vbmVcblxuICBkaXNwbGF5IGZsZXhcbiAgZmxleC1kaXJlY3Rpb24gY29sdW1uXG5cbnVsLCBwXG4gIG1hcmdpbiAwXG4gIHBhZGRpbmcgMFxuXG51bFxuICBsaXN0LXN0eWxlIG5vbmVcblxuaW5wdXQsIGJ1dHRvblxuICBib3gtc2l6aW5nIGJvcmRlci1ib3hcbiAgd2lkdGggMTAwJVxuIiwiOmhvc3Qge1xuICBiYWNrZ3JvdW5kOiAjZmZmO1xuICBmbGV4LXNocmluazogMTtcbiAgd2lkdGg6IDIwJTtcbiAgb3ZlcmZsb3c6IG5vbmU7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG59XG51bCxcbnAge1xuICBtYXJnaW46IDA7XG4gIHBhZGRpbmc6IDA7XG59XG51bCB7XG4gIGxpc3Qtc3R5bGU6IG5vbmU7XG59XG5pbnB1dCxcbmJ1dHRvbiB7XG4gIGJveC1zaXppbmc6IGJvcmRlci1ib3g7XG4gIHdpZHRoOiAxMDAlO1xufVxuLyojIHNvdXJjZU1hcHBpbmdVUkw9c3JjL2FwcC9lcXVhdGlvbi1wYW5lbC9lcXVhdGlvbi1wYW5lbC5jb21wb25lbnQuY3NzLm1hcCAqLyJdfQ== */"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](EquationPanelComponent, [{
