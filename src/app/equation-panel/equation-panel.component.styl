@@ -1,19 +1,23 @@
 :host
   background #fff
-  flex-shrink 1
   width 20%
-  overflow none
+  min-width: 300px
+  overflow scroll
 
   display flex
   flex-direction column
 
-ul, p
+p
   margin 0
   padding 0
+  display flex
 
-ul
-  list-style none
+h1, input, button
+  padding 0.5rem
 
 input, button
-  box-sizing border-box
-  width 100%
+  flex 1
+  font-size 1.2rem
+
+.equation button
+  flex 0

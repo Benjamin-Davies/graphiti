@@ -1,3 +1,11 @@
 :host
   display flex
   height stretch
+
+@media (max-width 1000px)
+  :host
+    flex-direction column-reverse
+
+  app-equation-panel
+    width auto
+    height 40vh
