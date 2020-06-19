@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { ExecEquationService } from './exec-equation.service';
 import { Equation } from './equation';
-import { NumberNode, PronumeralNode, TermNode, SumNode } from './equation-ast';
+import { NumberNode, PronumeralNode, TermNode, SumNode, ProductNode } from './equation-ast';
 
 describe('ExecEquationService', () => {
   let service: ExecEquationService;
@@ -73,6 +73,29 @@ describe('ExecEquationService', () => {
     const result = service.evalNode(node, context);
 
     expect(result).toBe(-2 * x);
+  });
+
+  it('2*4 = 8', () => {
+    const node: ProductNode = {
+      type: 'product',
+      children: [
+        {
+          type: 'term',
+          sign: '+',
+          children: [{ type: 'number', value: 2 }],
+        },
+        {
+          type: 'term',
+          sign: '+',
+          children: [{ type: 'number', value: 4 }],
+        },
+      ],
+    };
+    const context = {};
+
+    const result = service.evalNode(node, context);
+
+    expect(result).toBe(8);
   });
 
   it('1+2 = 3', () => {
