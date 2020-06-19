@@ -2,10 +2,16 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GraphViewComponent } from './graph-view.component';
 import { Equation } from '../equation';
+import { EquationsService } from '../equations.service';
 
 describe('GraphViewComponent', () => {
   let component: GraphViewComponent;
   let fixture: ComponentFixture<GraphViewComponent>;
+  let equations: EquationsService;
+
+  beforeEach(() => {
+    localStorage.removeItem('equations');
+  });
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -15,10 +21,9 @@ describe('GraphViewComponent', () => {
   }));
 
   beforeEach(() => {
+    equations = TestBed.inject(EquationsService);
     fixture = TestBed.createComponent(GraphViewComponent);
     component = fixture.componentInstance;
-    component.equation = new Equation();
-    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -26,8 +31,10 @@ describe('GraphViewComponent', () => {
   });
 
   it('should not crash for a basic equation', () => {
-    component.equation.text = 'x';
+    equations.addEquation(new Equation());
+    equations.equations[0].text = 'x';
     fixture.detectChanges();
+
     expect(component).toBeTruthy();
   });
 });

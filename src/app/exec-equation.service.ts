@@ -49,7 +49,7 @@ export class ExecEquationService {
 
   evalNode(node: AstNode, context: Context): number {
     switch (node.type) {
-      case 'expression':
+      case 'sum':
         return node.children.reduce((sum, exp) => sum + this.evalNode(exp, context), 0);
       case 'product':
         return node.children.reduce((prod, exp) => prod * this.evalNode(exp, context), 1);

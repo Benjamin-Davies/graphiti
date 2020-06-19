@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject, merge, Observable, OperatorFunction, scheduled, of, Subscription } from 'rxjs';
+import { Subject, Observable, of, Subscription } from 'rxjs';
 import { switchMap, startWith, map, mergeMap, debounceTime } from 'rxjs/operators';
 
 import { Equation } from './equation';
