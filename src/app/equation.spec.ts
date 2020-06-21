@@ -6,7 +6,7 @@ describe('Equation', () => {
   });
 
   it('should create an ast when text is set', () => {
-    let equation = new Equation();
+    const equation = new Equation();
 
     expect(equation).toBeTruthy();
     expect(equation.ast).toBeNull();

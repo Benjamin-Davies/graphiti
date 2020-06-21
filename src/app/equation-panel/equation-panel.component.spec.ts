@@ -9,8 +9,8 @@ describe('EquationPanelComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ EquationPanelComponent ],
-      imports: [ FormsModule ]
+      declarations: [EquationPanelComponent],
+      imports: [FormsModule],
     })
     .compileComponents();
   }));

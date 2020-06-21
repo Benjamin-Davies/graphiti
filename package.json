@@ -23,6 +23,7 @@
     "parjs": "^0.12.7",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
+    "tslint-config-airbnb": "^5.11.2",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

@@ -1,25 +1,25 @@
-import { EquationAst } from './equation-ast';
 import { Subject } from 'rxjs';
+import { EquationAst } from './equation-ast';
 
 export class Equation {
 
-  private _text: string = '';
-  private _ast: EquationAst | null = null;
+  private textInternal = '';
+  private astInternal: EquationAst | null = null;
 
   public readonly updates = new Subject<Equation>();
 
   public get text(): string {
-    return this._text;
+    return this.textInternal;
   }
   public set text(text: string) {
-    this._ast = EquationAst.parse(text);
-    this._text = text;
+    this.astInternal = EquationAst.parse(text);
+    this.textInternal = text;
 
     this.updates.next(this);
   }
 
   public get ast(): EquationAst | null {
-    return this._ast;
+    return this.astInternal;
   }
 
   constructor() {}

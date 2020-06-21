@@ -1,8 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GraphViewComponent } from './graph-view.component';
 import { Equation } from '../equation';
 import { EquationsService } from '../equations.service';
+import { GraphViewComponent } from './graph-view.component';
 
 describe('GraphViewComponent', () => {
   let component: GraphViewComponent;
@@ -15,7 +15,7 @@ describe('GraphViewComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GraphViewComponent ]
+      declarations: [GraphViewComponent],
     })
     .compileComponents();
   }));

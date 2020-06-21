@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable, of, Subscription } from 'rxjs';
-import { switchMap, startWith, map, mergeMap, debounceTime } from 'rxjs/operators';
+import { Observable, of, Subject, Subscription } from 'rxjs';
+import { debounceTime, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
 
 import { Equation } from './equation';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EquationsService {
 
-  private _equations: readonly Equation[] = [];
+  private equationsInternal: readonly Equation[] = [];
 
   public readonly arrayUpdates = new Subject<readonly Equation[]>();
   public get updates(): Observable<readonly Equation[]> {
@@ -20,16 +20,16 @@ export class EquationsService {
       ).pipe(
         mergeMap(x => x),
         map(() => this.equations),
-        startWith(a)
-      ))
-    )
+        startWith(a),
+      )),
+    );
   }
 
   public get equations(): readonly Equation[] {
-    return this._equations;
+    return this.equationsInternal;
   }
   public set equations(equations: readonly Equation[]) {
-    this._equations = equations;
+    this.equationsInternal = equations;
 
     this.arrayUpdates.next(equations);
   }
@@ -62,7 +62,7 @@ export class EquationsService {
 const EQUATIONS_LOCALSTORAGE_KEY = 'equations';
 
 interface EquationSaveFormat {
-  text: string,
+  text: string;
 }
 
 function loadEquations(): readonly Equation[] {
