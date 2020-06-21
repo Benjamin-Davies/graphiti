@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, HostListener } from '@angular/core';
+import { vec2, mat2d } from 'gl-matrix';
 import { fromEvent, merge, Subscription } from 'rxjs';
 
 import { EquationsService } from '../equations.service';
@@ -73,31 +74,48 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     if (!ctx || !host) { return; }
     const width = ctx.canvas.width = host.clientWidth;
     const height = ctx.canvas.height = host.clientHeight - 5;
+
     const scale = Math.min(width, height) * Math.pow(2, this.zoom);
+    const translate = mat2d.create();
+    mat2d.translate(translate, translate, [width / 2, height / 2]);
+    const transform = mat2d.create();
+    transform[3] = -1;
+    mat2d.multiplyScalar(transform, transform, scale);
+    mat2d.multiply(transform, translate, transform);
 
     ctx.clearRect(0, 0, width, height);
 
-    this.renderAxes(ctx, width, height, scale);
-    this.renderEquations(ctx, width, height, scale);
+    this.renderAxes(ctx, width, height, transform);
+    this.renderEquations(ctx, width, height, transform);
   }
 
-  renderEquations(ctx: Ctx, width: number, height: number, scale: number) {
+  renderEquations(ctx: Ctx, width: number, _: number, transform: mat2d) {
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'black';
+
+    const transformInverse = mat2d.create();
+    mat2d.invert(transformInverse, transform);
+    const tmpVec = vec2.create();
 
     for (const equation of this.equations.equations) {
       ctx.beginPath();
       for (let sx = 0; sx < width; sx += 5) {
-        const x = (sx - width / 2) / scale;
+        tmpVec[0] = sx;
+        vec2.transformMat2d(tmpVec, tmpVec, transformInverse);
+        const x = tmpVec[0];
+
         const { y } = this.execEquation.execEquation(equation, { x });
-        const sy = -y * scale + height / 2;
+
+        tmpVec[1] = y;
+        vec2.transformMat2d(tmpVec, tmpVec, transform);
+        const sy = tmpVec[1];
         ctx.lineTo(sx, sy);
       }
       ctx.stroke();
     }
   }
 
-  renderAxes(ctx: Ctx, width: number, height: number, scale: number) {
+  renderAxes(ctx: Ctx, width: number, height: number, _: mat2d) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'blue';
     ctx.fillStyle = 'blue';
