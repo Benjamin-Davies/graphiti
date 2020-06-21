@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, HostListener } from '@angular/core';
 import { fromEvent, merge, Subscription } from 'rxjs';
 
 import { EquationsService } from '../equations.service';
@@ -15,7 +15,12 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
 
+  zoom = 0;
+
   ctxCache: Ctx | null = null;
+  subCache: Subscription | null = null;
+  animationFrameCache: number | null = null;
+
   get ctx(): Ctx {
     if (this.ctxCache?.canvas !== this.canvas?.nativeElement) {
       this.ctxCache = this.canvas.nativeElement.getContext('2d');
@@ -23,9 +28,12 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     return this.ctxCache;
   }
 
-  constructor(private equations: EquationsService, private execEquation: ExecEquationService, private host: ElementRef) { }
+  constructor(
+    private equations: EquationsService,
+    private execEquation: ExecEquationService,
+    private host: ElementRef,
+  ) { }
 
-  subCache: Subscription | null = null;
   ngOnInit() {
     const resize = fromEvent(window, 'resize');
     const updates = merge(this.equations.updates, resize);
@@ -43,36 +51,53 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
+  @HostListener('mousewheel', ['$event'])
+  onScroll(event: WheelEvent) {
+    event.preventDefault();
+    this.zoom += event.deltaY / 100;
+    this.render();
+  }
+
   render() {
+    if (this.animationFrameCache === null) {
+      this.animationFrameCache = requestAnimationFrame(() => {
+        this.animationFrameCache = null;
+        this.renderGraphs();
+      });
+    }
+  }
+
+  renderGraphs() {
     const ctx = this.ctx;
     const host = this.host?.nativeElement;
     if (!ctx || !host) { return; }
     const width = ctx.canvas.width = host.clientWidth;
     const height = ctx.canvas.height = host.clientHeight - 5;
+    const scale = Math.min(width, height) * Math.pow(2, this.zoom);
 
     ctx.clearRect(0, 0, width, height);
 
-    this.renderAxes(ctx, width, height);
-    this.renderEquations(ctx, width, height);
+    this.renderAxes(ctx, width, height, scale);
+    this.renderEquations(ctx, width, height, scale);
   }
 
-  renderEquations(ctx: Ctx, width: number, height: number) {
+  renderEquations(ctx: Ctx, width: number, height: number, scale: number) {
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'black';
 
     for (const equation of this.equations.equations) {
       ctx.beginPath();
       for (let sx = 0; sx < width; sx += 5) {
-        const x = 6 * (sx / width) - 3;
+        const x = (sx - width / 2) / scale;
         const { y } = this.execEquation.execEquation(equation, { x });
-        const sy = (-y / 6 + 0.5) * height;
+        const sy = -y * scale + height / 2;
         ctx.lineTo(sx, sy);
       }
       ctx.stroke();
     }
   }
 
-  renderAxes(ctx: Ctx, width: number, height: number) {
+  renderAxes(ctx: Ctx, width: number, height: number, scale: number) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'blue';
     ctx.fillStyle = 'blue';
