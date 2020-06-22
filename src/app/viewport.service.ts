@@ -3,7 +3,7 @@ import { mat2d, ReadonlyVec2, vec2 } from 'gl-matrix';
 
 export const intitalScale = 1 / 5;
 export const zoomSensitivity = 1 / 100;
-export const minSize = 1 / 100;
+export const minSize = 1 / 1000;
 
 @Injectable({
   providedIn: 'root',

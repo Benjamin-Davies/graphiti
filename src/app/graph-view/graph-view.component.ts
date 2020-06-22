@@ -119,7 +119,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
     const [minX, minY, maxX, maxY] = this.viewport.getBounds();
 
-    const incApprox = Math.abs(maxX - minX) / 10;
+    const incApprox = Math.abs(maxX - minX) / 7;
     const incMagnitude = Math.round(Math.log10(incApprox));
     const inc = Math.pow(10, incMagnitude);
 
@@ -150,7 +150,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     for (let x = Math.floor(minX / inc) * inc; x <= maxX; x += inc) {
       if (Math.abs(x) > EPSILON) {
         const [sx, sy] = this.viewport.screenCoords([x, 0]);
-        ctx.fillText(x.toString(), sx, sy + 15);
+        ctx.fillText(formatLabel(x, incMagnitude), sx, sy + 15);
       }
     }
 
@@ -159,9 +159,13 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     for (let y = Math.floor(minY / inc) * inc; y <= maxY; y += inc) {
       if (Math.abs(y) > EPSILON) {
         const [sx, sy] = this.viewport.screenCoords([0, y]);
-        ctx.fillText(y.toString(), sx - 15, sy);
+        ctx.fillText(formatLabel(y, incMagnitude), sx - 15, sy);
       }
     }
   }
 
+}
+
+export function formatLabel(x: number, magnitude: number) {
+  return x.toFixed(Math.max(0, -magnitude));
 }
