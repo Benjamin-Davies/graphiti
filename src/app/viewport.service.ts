@@ -8,11 +8,15 @@ export const zoomSensitivity = 1 / 100;
   providedIn: 'root',
 })
 export class ViewportService {
+  // Will never rotate, but in most cases it shouldn't matter
   readonly matrix = mat2d.fromScaling(
     mat2d.create(),
     [intitalScale, -intitalScale],
   );
   readonly inverseMatrix = mat2d.create();
+  readonly viewMatrix = mat2d.create();
+  readonly inverseViewMatrix = mat2d.create();
+  readonly tmpVec = vec2.create();
 
   constructor() {
     this.updateMatrices();
@@ -29,16 +33,29 @@ export class ViewportService {
     this.updateMatrices();
   }
 
-  // TODO: will be redundat once all vector logic is in here
-  createViewMatrix(viewportDimensions: ReadonlyVec2) {
+  updateViewMatrix(viewportDimensions: ReadonlyVec2) {
     const scale = Math.min(viewportDimensions[0], viewportDimensions[1]) / 2;
     const center = vec2.clone(viewportDimensions);
     vec2.scale(center, center, 0.5);
 
-    const view = mat2d.fromTranslation(mat2d.create(), center);
+    const view = this.viewMatrix;
+    mat2d.fromTranslation(view, center);
     mat2d.scale(view, view, [scale, scale]);
 
     mat2d.multiply(view, view, this.matrix);
+    mat2d.invert(this.inverseViewMatrix, this.viewMatrix);
     return view;
+  }
+
+  screenToEqX(sx: number): number {
+    this.tmpVec[0] = sx;
+    vec2.transformMat2d(this.tmpVec, this.tmpVec, this.inverseViewMatrix);
+    return this.tmpVec[0];
+  }
+
+  eqToScreenY(y: number): number {
+    this.tmpVec[1] = y;
+    vec2.transformMat2d(this.tmpVec, this.tmpVec, this.viewMatrix);
+    return this.tmpVec[1];
   }
 }

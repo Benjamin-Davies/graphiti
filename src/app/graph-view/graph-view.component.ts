@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, HostListener } from '@angular/core';
-import { vec2, mat2d } from 'gl-matrix';
 import { fromEvent, merge, Subscription } from 'rxjs';
 
 import { EquationsService } from '../equations.service';
@@ -75,41 +74,33 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     const width = ctx.canvas.width = host.clientWidth;
     const height = ctx.canvas.height = host.clientHeight - 5;
 
-    const transform = this.viewport.createViewMatrix([width, height]);
+    this.viewport.updateViewMatrix([width, height]);
 
     ctx.clearRect(0, 0, width, height);
 
-    this.renderAxes(ctx, width, height, transform);
-    this.renderEquations(ctx, width, height, transform);
+    this.renderAxes(ctx, width, height);
+    this.renderEquations(ctx, width, height);
   }
 
-  renderEquations(ctx: Ctx, width: number, _: number, transform: mat2d) {
+  renderEquations(ctx: Ctx, width: number, _: number) {
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'black';
-
-    const transformInverse = mat2d.create();
-    mat2d.invert(transformInverse, transform);
-    const tmpVec = vec2.create();
 
     for (const equation of this.equations.equations) {
       ctx.beginPath();
       for (let sx = 0; sx < width; sx += 5) {
-        tmpVec[0] = sx;
-        vec2.transformMat2d(tmpVec, tmpVec, transformInverse);
-        const x = tmpVec[0];
+        const x = this.viewport.screenToEqX(sx);
 
         const { y } = this.execEquation.execEquation(equation, { x });
 
-        tmpVec[1] = y;
-        vec2.transformMat2d(tmpVec, tmpVec, transform);
-        const sy = tmpVec[1];
+        const sy = this.viewport.eqToScreenY(y);
         ctx.lineTo(sx, sy);
       }
       ctx.stroke();
     }
   }
 
-  renderAxes(ctx: Ctx, width: number, height: number, _: mat2d) {
+  renderAxes(ctx: Ctx, width: number, height: number) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'blue';
     ctx.fillStyle = 'blue';
