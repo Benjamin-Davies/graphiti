@@ -3,6 +3,7 @@ import { mat2d, ReadonlyVec2, vec2 } from 'gl-matrix';
 
 export const intitalScale = 1 / 5;
 export const zoomSensitivity = 1 / 100;
+export const minSize = 1 / 100;
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class ViewportService {
   readonly inverseMatrix = mat2d.create();
   readonly viewMatrix = mat2d.create();
   readonly inverseViewMatrix = mat2d.create();
+  readonly viewportDimensions = vec2.create();
   readonly tmpVec = vec2.create();
 
   constructor() {
@@ -23,6 +25,12 @@ export class ViewportService {
   }
 
   updateMatrices() {
+    const determinant = Math.abs(mat2d.determinant(this.matrix));
+    if (determinant < minSize * minSize) {
+      const scale = Math.sqrt(minSize * minSize / determinant);
+      mat2d.scale(this.matrix, this.matrix, [scale, scale]);
+    }
+
     mat2d.invert(this.inverseMatrix, this.matrix);
   }
 
@@ -34,8 +42,10 @@ export class ViewportService {
   }
 
   updateViewMatrix(viewportDimensions: ReadonlyVec2) {
-    const scale = Math.min(viewportDimensions[0], viewportDimensions[1]) / 2;
-    const center = vec2.clone(viewportDimensions);
+    vec2.copy(this.viewportDimensions, viewportDimensions);
+
+    const scale = Math.min(this.viewportDimensions[0], this.viewportDimensions[1]) / 2;
+    const center = vec2.clone(this.viewportDimensions);
     vec2.scale(center, center, 0.5);
 
     const view = this.viewMatrix;
@@ -57,5 +67,19 @@ export class ViewportService {
     this.tmpVec[1] = y;
     vec2.transformMat2d(this.tmpVec, this.tmpVec, this.viewMatrix);
     return this.tmpVec[1];
+  }
+
+  screenCoords(v: ReadonlyVec2): [number, number] {
+    vec2.transformMat2d(this.tmpVec, v, this.viewMatrix);
+    return Array.from(this.tmpVec) as [number, number];
+  }
+
+  getBounds() {
+    const min = vec2.create();
+    vec2.transformMat2d(min, min, this.inverseViewMatrix);
+    const max = vec2.clone(this.viewportDimensions);
+    vec2.transformMat2d(max, max, this.inverseViewMatrix);
+    // Flip y because canvas uses +y down
+    return [min[0], max[1], max[0], min[1]];
   }
 }

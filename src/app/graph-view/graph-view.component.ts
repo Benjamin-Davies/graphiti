@@ -106,21 +106,25 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     ctx.fillStyle = 'blue';
     ctx.font = '12pt sans-serif';
 
+    const [minX, minY, maxX, maxY] = this.viewport.getBounds();
+
     // Draw all of the lines first
     ctx.beginPath();
 
-    ctx.moveTo(0, height / 2);
-    ctx.lineTo(width, height / 2);
-    for (let x = -3; x <= 3; x += 1) {
-      ctx.moveTo((x / 6 + 0.5) * width, height / 2);
-      ctx.lineTo((x / 6 + 0.5) * width, height / 2 + 10);
+    ctx.moveTo(...this.viewport.screenCoords([minX, 0]));
+    ctx.lineTo(...this.viewport.screenCoords([maxX, 0]));
+    for (let x = Math.ceil(minX); x <= maxX; x += 1) {
+      const [sx, sy] = this.viewport.screenCoords([x, 0]);
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx, sy + 10);
     }
 
-    ctx.moveTo(width / 2, 0);
-    ctx.lineTo(width / 2, height);
-    for (let y = -3; y <= 3; y += 1) {
-      ctx.moveTo(width / 2     , (-y / 6 + 0.5) * height);
-      ctx.lineTo(width / 2 - 10, (-y / 6 + 0.5) * height);
+    ctx.moveTo(...this.viewport.screenCoords([0, minY]));
+    ctx.lineTo(...this.viewport.screenCoords([0, maxY]));
+    for (let y = Math.ceil(minY); y <= maxY; y += 1) {
+      const [sx, sy] = this.viewport.screenCoords([0, y]);
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx - 10, sy);
     }
 
     ctx.stroke();
@@ -128,17 +132,19 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     // Then the text
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    for (let x = -3; x <= 3; x += 1) {
+    for (let x = Math.ceil(minX); x <= maxX; x += 1) {
       if (x !== 0) {
-        ctx.fillText(x.toString(), (x / 6 + 0.5) * width, height / 2 + 15);
+        const [sx, sy] = this.viewport.screenCoords([x, 0]);
+        ctx.fillText(x.toString(), sx, sy + 15);
       }
     }
 
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    for (let y = -3; y <= 3; y += 1) {
+    for (let y = Math.ceil(minY); y <= maxY; y += 1) {
       if (y !== 0) {
-        ctx.fillText(y.toString(), width / 2 - 15, (y / 6 + 0.5) * height);
+        const [sx, sy] = this.viewport.screenCoords([0, y]);
+        ctx.fillText(y.toString(), sx - 15, sy);
       }
     }
   }
