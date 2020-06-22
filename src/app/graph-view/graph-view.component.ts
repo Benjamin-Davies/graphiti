@@ -99,7 +99,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
     for (const equation of this.equations.equations) {
       ctx.beginPath();
-      for (let sx = 0; sx < width; sx += 5) {
+      for (let sx = 0; sx < width; sx += 2) {
         const x = this.viewport.screenToEqX(sx);
 
         const { y } = this.execEquation.execEquation(equation, { x });
