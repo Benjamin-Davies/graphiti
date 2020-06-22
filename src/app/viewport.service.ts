@@ -34,9 +34,19 @@ export class ViewportService {
     mat2d.invert(this.inverseMatrix, this.matrix);
   }
 
-  zoom(amount: number) {
+  zoomAt(amount: number, cursor: ReadonlyVec2, viewportDimensions: ReadonlyVec2) {
+    this.updateViewMatrix(viewportDimensions);
+
+    vec2.copy(this.tmpVec, cursor);
+    vec2.transformMat2d(this.tmpVec, this.tmpVec, this.inverseViewMatrix);
+
+    mat2d.translate(this.matrix, this.matrix, this.tmpVec);
+
     const scaleBy = Math.pow(2, amount * zoomSensitivity);
     mat2d.scale(this.matrix, this.matrix, [scaleBy, scaleBy]);
+
+    vec2.scale(this.tmpVec, this.tmpVec, -1);
+    mat2d.translate(this.matrix, this.matrix, this.tmpVec);
 
     this.updateMatrices();
   }

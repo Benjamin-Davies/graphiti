@@ -51,10 +51,17 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  @HostListener('mousewheel', ['$event'])
-  onScroll(event: WheelEvent) {
+  @HostListener('mousewheel', ['$event', '$event.target'])
+  onScroll(event: WheelEvent, target: HTMLElement) {
     event.preventDefault();
-    this.viewport.zoom(event.deltaY);
+    this.viewport.zoomAt(
+      event.deltaY,
+      [
+        event.clientX - target.offsetLeft,
+        event.clientY - target.offsetTop,
+      ],
+      [target.clientWidth, target.clientHeight],
+    );
     this.render();
   }
 
