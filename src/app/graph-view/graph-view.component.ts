@@ -78,13 +78,15 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ctx.clearRect(0, 0, width, height);
 
-    this.renderAxes(ctx, width, height);
-    this.renderEquations(ctx, width, height);
+    this.renderAxes(ctx);
+    this.renderEquations(ctx);
   }
 
-  renderEquations(ctx: Ctx, width: number, _: number) {
+  renderEquations(ctx: Ctx) {
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'black';
+
+    const width = this.viewport.viewportDimensions[0];
 
     for (const equation of this.equations.equations) {
       ctx.beginPath();
@@ -100,7 +102,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  renderAxes(ctx: Ctx, width: number, height: number) {
+  renderAxes(ctx: Ctx) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'blue';
     ctx.fillStyle = 'blue';
