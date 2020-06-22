@@ -4,6 +4,7 @@ import { fromEvent, merge, Subscription } from 'rxjs';
 
 import { EquationsService } from '../equations.service';
 import { ExecEquationService } from '../exec-equation.service';
+import { ViewportService } from '../viewport.service';
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -15,8 +16,6 @@ type Ctx = CanvasRenderingContext2D;
 export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
-
-  zoom = 0;
 
   ctxCache: Ctx | null = null;
   subCache: Subscription | null = null;
@@ -32,6 +31,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   constructor(
     private equations: EquationsService,
     private execEquation: ExecEquationService,
+    private viewport: ViewportService,
     private host: ElementRef,
   ) { }
 
@@ -55,7 +55,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   @HostListener('mousewheel', ['$event'])
   onScroll(event: WheelEvent) {
     event.preventDefault();
-    this.zoom += event.deltaY / 100;
+    this.viewport.zoom(event.deltaY);
     this.render();
   }
 
@@ -75,13 +75,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     const width = ctx.canvas.width = host.clientWidth;
     const height = ctx.canvas.height = host.clientHeight - 5;
 
-    const scale = Math.min(width, height) * Math.pow(2, this.zoom);
-    const translate = mat2d.create();
-    mat2d.translate(translate, translate, [width / 2, height / 2]);
-    const transform = mat2d.create();
-    transform[3] = -1;
-    mat2d.multiplyScalar(transform, transform, scale);
-    mat2d.multiply(transform, translate, transform);
+    const transform = this.viewport.createViewMatrix([width, height]);
 
     ctx.clearRect(0, 0, width, height);
 
