@@ -7,6 +7,8 @@ import { ViewportService } from '../viewport.service';
 
 type Ctx = CanvasRenderingContext2D;
 
+const EPSILON = 0.000001;
+
 @Component({
   selector: 'app-graph-view',
   templateUrl: './graph-view.component.html',
@@ -117,12 +119,16 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
     const [minX, minY, maxX, maxY] = this.viewport.getBounds();
 
+    const incApprox = Math.abs(maxX - minX) / 10;
+    const incMagnitude = Math.round(Math.log10(incApprox));
+    const inc = Math.pow(10, incMagnitude);
+
     // Draw all of the lines first
     ctx.beginPath();
 
     ctx.moveTo(...this.viewport.screenCoords([minX, 0]));
     ctx.lineTo(...this.viewport.screenCoords([maxX, 0]));
-    for (let x = Math.ceil(minX); x <= maxX; x += 1) {
+    for (let x = Math.floor(minX / inc) * inc; x <= maxX; x += inc) {
       const [sx, sy] = this.viewport.screenCoords([x, 0]);
       ctx.moveTo(sx, sy);
       ctx.lineTo(sx, sy + 10);
@@ -130,7 +136,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ctx.moveTo(...this.viewport.screenCoords([0, minY]));
     ctx.lineTo(...this.viewport.screenCoords([0, maxY]));
-    for (let y = Math.ceil(minY); y <= maxY; y += 1) {
+    for (let y = Math.floor(minY / inc) * inc; y <= maxY; y += inc) {
       const [sx, sy] = this.viewport.screenCoords([0, y]);
       ctx.moveTo(sx, sy);
       ctx.lineTo(sx - 10, sy);
@@ -141,8 +147,8 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     // Then the text
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    for (let x = Math.ceil(minX); x <= maxX; x += 1) {
-      if (x !== 0) {
+    for (let x = Math.floor(minX / inc) * inc; x <= maxX; x += inc) {
+      if (Math.abs(x) > EPSILON) {
         const [sx, sy] = this.viewport.screenCoords([x, 0]);
         ctx.fillText(x.toString(), sx, sy + 15);
       }
@@ -150,8 +156,8 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    for (let y = Math.ceil(minY); y <= maxY; y += 1) {
-      if (y !== 0) {
+    for (let y = Math.floor(minY / inc) * inc; y <= maxY; y += inc) {
+      if (Math.abs(y) > EPSILON) {
         const [sx, sy] = this.viewport.screenCoords([0, y]);
         ctx.fillText(y.toString(), sx - 15, sy);
       }
