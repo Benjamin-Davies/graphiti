@@ -28,8 +28,9 @@ export interface NumberNode extends AstNode {
   value: number;
 }
 const pNumber: Parjser<NumberNode> = digit(10).pipe(
+  or('.'),
   multiple(),
-  map(digits => ({ type: 'number', value: parseInt(digits.join(''), 10) })),
+  map(digits => ({ type: 'number', value: parseFloat(digits.join('')) })),
 );
 
 export interface PronumeralNode extends AstNode {
