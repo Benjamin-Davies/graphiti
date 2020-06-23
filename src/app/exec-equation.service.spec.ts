@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ExecEquationService } from './exec-equation.service';
 import { Equation } from './equation';
-import { NumberNode, PronumeralNode, TermNode, SumNode, ProductNode } from './equation-ast';
+import { NumberNode, ProductNode, PronumeralNode, SumNode, TermNode } from './equation-ast';
+import { ExecEquationService } from './exec-equation.service';
 
 describe('ExecEquationService', () => {
   let service: ExecEquationService;

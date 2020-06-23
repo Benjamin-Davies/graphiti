@@ -7,7 +7,7 @@ export interface Context {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ExecEquationService {
 
@@ -61,7 +61,7 @@ export class ExecEquationService {
       case 'number':
         return (node as NumberNode).value;
       default:
-        throw `IDK ${node.type}`;
+        throw new Error(`IDK ${node.type}`);
     }
   }
 

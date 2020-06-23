@@ -1,5 +1,5 @@
-import { TestBed, async } from '@angular/core/testing';
-import {FormsModule} from '@angular/forms';
+import { async, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { EquationPanelComponent } from './equation-panel/equation-panel.component';
@@ -11,11 +11,11 @@ describe('AppComponent', () => {
       declarations: [
         AppComponent,
         EquationPanelComponent,
-        GraphViewComponent
+        GraphViewComponent,
       ],
       imports: [
-        FormsModule
-      ]
+        FormsModule,
+      ],
     }).compileComponents();
   }));
 

@@ -1,15 +1,15 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
-import { Subscription, merge, fromEvent } from 'rxjs';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { fromEvent, merge, Subscription } from 'rxjs';
 
-import { ExecEquationService } from '../exec-equation.service';
 import { EquationsService } from '../equations.service';
+import { ExecEquationService } from '../exec-equation.service';
 
 type Ctx = CanvasRenderingContext2D;
 
 @Component({
   selector: 'app-graph-view',
   templateUrl: './graph-view.component.html',
-  styleUrls: ['./graph-view.component.styl']
+  styleUrls: ['./graph-view.component.styl'],
 })
 export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
@@ -29,7 +29,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   ngOnInit() {
     const resize = fromEvent(window, 'resize');
     const updates = merge(this.equations.updates, resize);
-    this.subCache = updates.subscribe({ next: () => this.render() })
+    this.subCache = updates.subscribe({ next: () => this.render() });
   }
 
   ngAfterViewInit() {
@@ -46,7 +46,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   render() {
     const ctx = this.ctx;
     const host = this.host?.nativeElement;
-    if (!ctx || !host) return;
+    if (!ctx || !host) { return; }
     const width = ctx.canvas.width = host.clientWidth;
     const height = ctx.canvas.height = host.clientHeight - 5;
 
@@ -83,14 +83,14 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ctx.moveTo(0, height / 2);
     ctx.lineTo(width, height / 2);
-    for (let x = -3; x <= 3; x++) {
+    for (let x = -3; x <= 3; x += 1) {
       ctx.moveTo((x / 6 + 0.5) * width, height / 2);
       ctx.lineTo((x / 6 + 0.5) * width, height / 2 + 10);
     }
 
     ctx.moveTo(width / 2, 0);
     ctx.lineTo(width / 2, height);
-    for (let y = -3; y <= 3; y++) {
+    for (let y = -3; y <= 3; y += 1) {
       ctx.moveTo(width / 2     , (-y / 6 + 0.5) * height);
       ctx.lineTo(width / 2 - 10, (-y / 6 + 0.5) * height);
     }
@@ -100,7 +100,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     // Then the text
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    for (let x = -3; x <= 3; x++) {
+    for (let x = -3; x <= 3; x += 1) {
       if (x !== 0) {
         ctx.fillText(x.toString(), (x / 6 + 0.5) * width, height / 2 + 15);
       }
@@ -108,7 +108,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    for (let y = -3; y <= 3; y++) {
+    for (let y = -3; y <= 3; y += 1) {
       if (y !== 0) {
         ctx.fillText(y.toString(), width / 2 - 15, (y / 6 + 0.5) * height);
       }
