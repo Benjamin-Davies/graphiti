@@ -21,6 +21,7 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   ctxCache: Ctx | null = null;
   subCache: Subscription | null = null;
   animationFrameCache: number | null = null;
+  mouseDown = false;
 
   get ctx(): Ctx {
     if (this.ctxCache?.canvas !== this.canvas?.nativeElement) {
@@ -50,6 +51,33 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     if (this.subCache) {
       this.subCache.unsubscribe();
       this.subCache = null;
+    }
+  }
+
+  @HostListener('mousedown', ['$event'])
+  onMouseDown(event: MouseEvent) {
+    if (event.button === 0) {
+      this.mouseDown = true;
+    }
+  }
+
+  @HostListener('mouseup', ['$event'])
+  onMouseUp(event: MouseEvent) {
+    if (event.button === 0) {
+      this.mouseDown = false;
+    }
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave() {
+    this.mouseDown = false;
+  }
+
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.mouseDown) {
+      this.viewport.pan([event.movementX, event.movementY]);
+      this.render();
     }
   }
 

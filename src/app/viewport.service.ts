@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { mat2d, ReadonlyVec2, vec2 } from 'gl-matrix';
+import { mat2d, ReadonlyVec2, vec2, mat2 } from 'gl-matrix';
 
 export const intitalScale = 1 / 5;
 export const zoomSensitivity = 1 / 100;
@@ -18,7 +18,9 @@ export class ViewportService {
   readonly viewMatrix = mat2d.create();
   readonly inverseViewMatrix = mat2d.create();
   readonly viewportDimensions = vec2.create();
+
   readonly tmpVec = vec2.create();
+  readonly tmpMat = mat2d.create();
 
   constructor() {
     this.updateMatrices();
@@ -32,6 +34,16 @@ export class ViewportService {
     }
 
     mat2d.invert(this.inverseMatrix, this.matrix);
+  }
+
+  pan(amount: ReadonlyVec2) {
+    vec2.copy(this.tmpVec, amount);
+    vec2.transformMat2(this.tmpVec, this.tmpVec, this.inverseViewMatrix as mat2);
+
+    const translation = mat2d.fromTranslation(this.tmpMat, this.tmpVec);
+    mat2d.multiply(this.matrix, this.matrix, translation);
+
+    this.updateMatrices();
   }
 
   zoomAt(amount: number, cursor: ReadonlyVec2, viewportDimensions: ReadonlyVec2) {
