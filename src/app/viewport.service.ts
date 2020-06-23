@@ -37,10 +37,10 @@ export class ViewportService {
   }
 
   pan(amount: ReadonlyVec2) {
-    vec2.copy(this.tmpVec, amount);
-    vec2.transformMat2(this.tmpVec, this.tmpVec, this.inverseViewMatrix as mat2);
+    const v = vec2.copy(this.tmpVec, amount);
+    vec2.transformMat2(v, v, this.inverseViewMatrix as mat2);
 
-    const translation = mat2d.fromTranslation(this.tmpMat, this.tmpVec);
+    const translation = mat2d.fromTranslation(this.tmpMat, v);
     mat2d.multiply(this.matrix, this.matrix, translation);
 
     this.updateMatrices();
@@ -49,16 +49,16 @@ export class ViewportService {
   zoomAt(amount: number, cursor: ReadonlyVec2, viewportDimensions: ReadonlyVec2) {
     this.updateViewMatrix(viewportDimensions);
 
-    vec2.copy(this.tmpVec, cursor);
-    vec2.transformMat2d(this.tmpVec, this.tmpVec, this.inverseViewMatrix);
+    const v = vec2.copy(this.tmpVec, cursor);
+    vec2.transformMat2d(v, v, this.inverseViewMatrix);
 
-    mat2d.translate(this.matrix, this.matrix, this.tmpVec);
+    mat2d.translate(this.matrix, this.matrix, v);
 
     const scaleBy = Math.pow(2, amount * zoomSensitivity);
     mat2d.scale(this.matrix, this.matrix, [scaleBy, scaleBy]);
 
-    vec2.scale(this.tmpVec, this.tmpVec, -1);
-    mat2d.translate(this.matrix, this.matrix, this.tmpVec);
+    vec2.scale(v, v, -1);
+    mat2d.translate(this.matrix, this.matrix, v);
 
     this.updateMatrices();
   }
@@ -80,20 +80,20 @@ export class ViewportService {
   }
 
   screenToEqX(sx: number): number {
-    this.tmpVec[0] = sx;
-    vec2.transformMat2d(this.tmpVec, this.tmpVec, this.inverseViewMatrix);
-    return this.tmpVec[0];
+    const v = vec2.set(this.tmpVec, sx, 0);
+    vec2.transformMat2d(v, v, this.inverseViewMatrix);
+    return v[0];
   }
 
   eqToScreenY(y: number): number {
-    this.tmpVec[1] = y;
-    vec2.transformMat2d(this.tmpVec, this.tmpVec, this.viewMatrix);
-    return this.tmpVec[1];
+    const v = vec2.set(this.tmpVec, 0, y)
+    vec2.transformMat2d(v, v, this.viewMatrix);
+    return v[1];
   }
 
   screenCoords(v: ReadonlyVec2): [number, number] {
-    vec2.transformMat2d(this.tmpVec, v, this.viewMatrix);
-    return Array.from(this.tmpVec) as [number, number];
+    const res = vec2.transformMat2d(this.tmpVec, v, this.viewMatrix);
+    return Array.from(res) as [number, number];
   }
 
   getBounds() {
