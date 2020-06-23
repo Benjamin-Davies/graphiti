@@ -86,7 +86,7 @@ export class ViewportService {
   }
 
   eqToScreenY(y: number): number {
-    const v = vec2.set(this.tmpVec, 0, y)
+    const v = vec2.set(this.tmpVec, 0, y);
     vec2.transformMat2d(v, v, this.viewMatrix);
     return v[1];
   }
