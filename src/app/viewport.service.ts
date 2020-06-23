@@ -4,6 +4,7 @@ import { mat2d, ReadonlyVec2, vec2, mat2 } from 'gl-matrix';
 export const intitalScale = 1 / 5;
 export const zoomSensitivity = 1 / 100;
 export const minSize = 1 / 1000;
+export const maxSize = 100;
 
 @Injectable({
   providedIn: 'root',
@@ -27,10 +28,9 @@ export class ViewportService {
   }
 
   updateMatrices() {
-    const determinant = Math.abs(mat2d.determinant(this.matrix));
-    if (determinant < minSize * minSize) {
-      const scale = Math.sqrt(minSize * minSize / determinant);
-      mat2d.scale(this.matrix, this.matrix, [scale, scale]);
+    const determinant = Math.sqrt(Math.abs(mat2d.determinant(this.matrix)));
+    if (determinant < minSize * minSize || determinant > maxSize * maxSize) {
+      mat2d.invert(this.matrix, this.inverseMatrix);
     }
 
     mat2d.invert(this.inverseMatrix, this.matrix);
