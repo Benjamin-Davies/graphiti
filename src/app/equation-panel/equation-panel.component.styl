@@ -1,7 +1,7 @@
 :host
   background #fff
   width 20%
-  min-width: 300px
+  min-width: 400px
   overflow auto
 
   display flex
@@ -12,12 +12,16 @@ p
   padding 0
   display flex
 
-h1, input, button
+h1, input, button, .error
   padding 0.5rem
 
-input, button
+input, button, .error
   flex 1
   font-size 1.2rem
 
 .equation button
   flex 0
+
+.error
+  flex 0
+  color red
