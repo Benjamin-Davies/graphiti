@@ -1,7 +1,7 @@
 import { anyCharOf, digit, letter, Parjser } from 'parjs';
 import { map, maybe, or, then } from 'parjs/combinators';
 
-import { multiple, multipleSepBy, singleOrMap } from './parser.utils';
+import { multiple, multipleSepBy, singleOrMap, softFailure } from './parser.utils';
 
 export class EquationAst {
   constructor(public readonly rootNode: EquationNode) {}
@@ -44,16 +44,28 @@ const pPronumeral: Parjser<PronumeralNode> = letter().pipe(
 export type SubExpressionNode = NumberNode | PronumeralNode;
 const pSubExpression: Parjser<SubExpressionNode> = or<PronumeralNode, NumberNode>(pNumber)(pPronumeral);
 
+export interface ExponentialNode extends AstNode {
+  type: 'exponential';
+  children: [SubExpressionNode, SubExpressionNode];
+}
+const pExponential: Parjser<ExponentialNode> = pSubExpression.pipe(
+  then('^'),
+  softFailure(),
+  then(pSubExpression),
+  map(([[a, _], b]) => ({ type: 'exponential', children: [a, b] })),
+);
+
 export type Sign = '+' | '-';
 const pSign: Parjser<Sign> = maybe<Sign, '+'>('+')(anyCharOf('+-') as Parjser<Sign>);
 
 export interface TermNode extends AstNode {
   type: 'term';
   sign: Sign;
-  children: SubExpressionNode[];
+  children: (ExponentialNode | SubExpressionNode)[];
 }
 const pTerm: Parjser<TermNode> = pSign.pipe(
-  then(pSubExpression.pipe(
+  then(pExponential.pipe(
+    or(pSubExpression),
     multiple(),
   )),
   map(([sign, children]) => ({ sign, children, type: 'term' })),
