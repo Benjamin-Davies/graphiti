@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Equation } from './equation';
-import { AstNode, NumberNode, TermNode } from './equation-ast';
+import { AstNode, NumberNode, TermNode, ExponentialNode } from './equation-ast';
 
 export interface Context {
   [key: string]: number;
@@ -56,6 +56,9 @@ export class ExecEquationService {
       case 'term':
         return ((node as TermNode).sign === '-' ? -1 : 1)
           * node.children.reduce((prod, exp) => prod * this.evalNode(exp, context), 1);
+      case 'exponential':
+        const { children: [a, b] } = node as ExponentialNode;
+        return Math.pow(this.evalNode(a, context), this.evalNode(b, context));
       case 'pronumeral':
         return context[node.value] ?? NaN;
       case 'number':
