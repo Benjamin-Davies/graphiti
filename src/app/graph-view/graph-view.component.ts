@@ -1,10 +1,13 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, HostListener } from '@angular/core';
 import { fromEvent, merge, Subscription } from 'rxjs';
 
 import { EquationsService } from '../equations.service';
 import { ExecEquationService } from '../exec-equation.service';
+import { ViewportService } from '../viewport.service';
 
 type Ctx = CanvasRenderingContext2D;
+
+const EPSILON = 0.000001;
 
 @Component({
   selector: 'app-graph-view',
@@ -16,6 +19,10 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
 
   ctxCache: Ctx | null = null;
+  subCache: Subscription | null = null;
+  animationFrameCache: number | null = null;
+  mouseDown = false;
+
   get ctx(): Ctx {
     if (this.ctxCache?.canvas !== this.canvas?.nativeElement) {
       this.ctxCache = this.canvas.nativeElement.getContext('2d');
@@ -23,9 +30,13 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     return this.ctxCache;
   }
 
-  constructor(private equations: EquationsService, private execEquation: ExecEquationService, private host: ElementRef) { }
+  constructor(
+    private equations: EquationsService,
+    private execEquation: ExecEquationService,
+    private viewport: ViewportService,
+    private host: ElementRef,
+  ) { }
 
-  subCache: Subscription | null = null;
   ngOnInit() {
     const resize = fromEvent(window, 'resize');
     const updates = merge(this.equations.updates, resize);
@@ -43,56 +54,120 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
+  @HostListener('mousedown', ['$event'])
+  onMouseDown(event: MouseEvent) {
+    if (event.button === 0) {
+      this.mouseDown = true;
+    }
+  }
+
+  @HostListener('mouseup', ['$event'])
+  onMouseUp(event: MouseEvent) {
+    if (event.button === 0) {
+      this.mouseDown = false;
+    }
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave() {
+    this.mouseDown = false;
+  }
+
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.mouseDown) {
+      this.viewport.pan([event.movementX, event.movementY]);
+      this.render();
+    }
+  }
+
+  @HostListener('mousewheel', ['$event', '$event.target'])
+  onScroll(event: WheelEvent, target: HTMLElement) {
+    event.preventDefault();
+    this.viewport.zoomAt(
+      event.deltaY,
+      [
+        event.clientX - target.offsetLeft,
+        event.clientY - target.offsetTop,
+      ],
+      [target.clientWidth, target.clientHeight],
+    );
+    this.render();
+  }
+
   render() {
+    if (this.animationFrameCache === null) {
+      this.animationFrameCache = requestAnimationFrame(() => {
+        this.animationFrameCache = null;
+        this.renderGraphs();
+      });
+    }
+  }
+
+  renderGraphs() {
     const ctx = this.ctx;
     const host = this.host?.nativeElement;
     if (!ctx || !host) { return; }
     const width = ctx.canvas.width = host.clientWidth;
     const height = ctx.canvas.height = host.clientHeight - 5;
 
+    this.viewport.updateViewMatrix([width, height]);
+
     ctx.clearRect(0, 0, width, height);
 
-    this.renderAxes(ctx, width, height);
-    this.renderEquations(ctx, width, height);
+    this.renderAxes(ctx);
+    this.renderEquations(ctx);
   }
 
-  renderEquations(ctx: Ctx, width: number, height: number) {
+  renderEquations(ctx: Ctx) {
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'black';
 
+    const width = this.viewport.viewportDimensions[0];
+
     for (const equation of this.equations.equations) {
       ctx.beginPath();
-      for (let sx = 0; sx < width; sx += 5) {
-        const x = 6 * (sx / width) - 3;
+      for (let sx = 0; sx < width; sx += 2) {
+        const x = this.viewport.screenToEqX(sx);
+
         const { y } = this.execEquation.execEquation(equation, { x });
-        const sy = (-y / 6 + 0.5) * height;
+
+        const sy = this.viewport.eqToScreenY(y);
         ctx.lineTo(sx, sy);
       }
       ctx.stroke();
     }
   }
 
-  renderAxes(ctx: Ctx, width: number, height: number) {
+  renderAxes(ctx: Ctx) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'blue';
     ctx.fillStyle = 'blue';
     ctx.font = '12pt sans-serif';
 
+    const [minX, minY, maxX, maxY] = this.viewport.getBounds();
+
+    const incApprox = Math.abs(maxX - minX) / 7;
+    const incMagnitude = Math.round(Math.log10(incApprox));
+    const inc = Math.pow(10, incMagnitude);
+
     // Draw all of the lines first
     ctx.beginPath();
 
-    ctx.moveTo(0, height / 2);
-    ctx.lineTo(width, height / 2);
-    for (let x = -3; x <= 3; x += 1) {
-      ctx.moveTo((x / 6 + 0.5) * width, height / 2);
-      ctx.lineTo((x / 6 + 0.5) * width, height / 2 + 10);
+    ctx.moveTo(...this.viewport.screenCoords([minX, 0]));
+    ctx.lineTo(...this.viewport.screenCoords([maxX, 0]));
+    for (let x = Math.floor(minX / inc) * inc; x <= maxX; x += inc) {
+      const [sx, sy] = this.viewport.screenCoords([x, 0]);
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx, sy + 10);
     }
 
-    ctx.moveTo(width / 2, 0);
-    ctx.lineTo(width / 2, height);
-    for (let y = -3; y <= 3; y += 1) {
-      ctx.moveTo(width / 2     , (-y / 6 + 0.5) * height);
-      ctx.lineTo(width / 2 - 10, (-y / 6 + 0.5) * height);
+    ctx.moveTo(...this.viewport.screenCoords([0, minY]));
+    ctx.lineTo(...this.viewport.screenCoords([0, maxY]));
+    for (let y = Math.floor(minY / inc) * inc; y <= maxY; y += inc) {
+      const [sx, sy] = this.viewport.screenCoords([0, y]);
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx - 10, sy);
     }
 
     ctx.stroke();
@@ -100,19 +175,25 @@ export class GraphViewComponent implements AfterViewInit, OnInit, OnDestroy {
     // Then the text
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    for (let x = -3; x <= 3; x += 1) {
-      if (x !== 0) {
-        ctx.fillText(x.toString(), (x / 6 + 0.5) * width, height / 2 + 15);
+    for (let x = Math.floor(minX / inc) * inc; x <= maxX; x += inc) {
+      if (Math.abs(x) > EPSILON) {
+        const [sx, sy] = this.viewport.screenCoords([x, 0]);
+        ctx.fillText(formatLabel(x, incMagnitude), sx, sy + 15);
       }
     }
 
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    for (let y = -3; y <= 3; y += 1) {
-      if (y !== 0) {
-        ctx.fillText(y.toString(), width / 2 - 15, (y / 6 + 0.5) * height);
+    for (let y = Math.floor(minY / inc) * inc; y <= maxY; y += inc) {
+      if (Math.abs(y) > EPSILON) {
+        const [sx, sy] = this.viewport.screenCoords([0, y]);
+        ctx.fillText(formatLabel(y, incMagnitude), sx - 15, sy);
       }
     }
   }
 
+}
+
+export function formatLabel(x: number, magnitude: number) {
+  return x.toFixed(Math.max(0, -magnitude));
 }
