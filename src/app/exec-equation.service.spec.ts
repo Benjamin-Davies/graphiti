@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { Equation } from './equation';
-import { NumberNode, ProductNode, PronumeralNode, SumNode, TermNode, ExponentialNode } from './equation-ast';
+import { NumberNode, ProductNode, PronumeralNode, SumNode, TermNode, ExponentialNode, ParenthesesNode } from './equation-ast';
 import { ExecEquationService } from './exec-equation.service';
 
 describe('ExecEquationService', () => {
@@ -134,5 +134,23 @@ describe('ExecEquationService', () => {
     const result = service.evalNode(node, context);
 
     expect(result).toBe(1024);
+  });
+
+  it('(5) = 5', () => {
+    const node: ParenthesesNode = {
+      type: 'parentheses',
+      children: [
+        {
+          type: 'term',
+          sign: '+',
+          children: [{ type: 'number', value: 5 }],
+        },
+      ],
+    };
+    const context = {};
+
+    const result = service.evalNode(node, context);
+
+    expect(result).toBe(5);
   });
 });

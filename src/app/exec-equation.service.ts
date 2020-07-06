@@ -63,6 +63,8 @@ export class ExecEquationService {
         return context[node.value] ?? NaN;
       case 'number':
         return (node as NumberNode).value;
+      case 'parentheses':
+        return this.evalNode(node.children[0], context);
       default:
         throw new Error(`IDK ${node.type}`);
     }

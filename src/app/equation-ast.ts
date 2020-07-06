@@ -1,7 +1,7 @@
 import { anyCharOf, digit, letter, Parjser } from 'parjs';
-import { map, maybe, or, then } from 'parjs/combinators';
+import { map, maybe, or, then, between } from 'parjs/combinators';
 
-import { multiple, multipleSepBy, singleOrMap, softFailure } from './parser.utils';
+import { defer, multiple, multipleSepBy, singleOrMap, softFailure } from './parser.utils';
 
 export class EquationAst {
   constructor(public readonly rootNode: EquationNode) {}
@@ -41,8 +41,19 @@ const pPronumeral: Parjser<PronumeralNode> = letter().pipe(
   map(value => ({ value, type: 'pronumeral' })),
 );
 
-export type SubExpressionNode = NumberNode | PronumeralNode;
-const pSubExpression: Parjser<SubExpressionNode> = or<PronumeralNode, NumberNode>(pNumber)(pPronumeral);
+export interface ParenthesesNode extends AstNode {
+  type: 'parentheses';
+  children: [ExpressionNode];
+}
+const pParentheses: Parjser<ParenthesesNode> = defer(() => pSum).pipe(
+  between('(', ')'),
+  map(child => ({ children: [child], type: 'parentheses' })),
+);
+
+export type SubExpressionNode = NumberNode | PronumeralNode | ParenthesesNode;
+const pSubExpression: Parjser<SubExpressionNode> = pParentheses.pipe(
+  or(pNumber, pPronumeral),
+);
 
 export interface ExponentialNode extends AstNode {
   type: 'exponential';
