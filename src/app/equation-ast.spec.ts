@@ -1,4 +1,12 @@
-import { EquationAst, TermNode, ParenthesesNode, SumNode } from './equation-ast';
+import {
+  EquationAst,
+  TermNode,
+  ParenthesesNode,
+  SumNode,
+  ConditionalNode,
+  InequalityOperator,
+  InequalityNode,
+} from './equation-ast';
 
 describe('EquationAst', () => {
   it('should parse "x"', () => {
@@ -71,5 +79,33 @@ describe('EquationAst', () => {
 
     const term2 = sum.children[1] as TermNode;
     expect(term2.children[0].value).toBe(3);
+  });
+
+  it('should parse "{x>2}" correctly', () => {
+    const ast = EquationAst.parse('{x>2}');
+    expect(ast).toBeTruthy();
+    expect(ast.rootNode).toBeTruthy();
+    expect(ast.rootNode.type).toBe('equation');
+    expect(ast.rootNode.children.length).toBe(1);
+
+    const term0 = ast.rootNode.children[0] as TermNode;
+    expect(term0.type).toBe('term');
+    expect(term0.children.length).toBe(1);
+
+    const cond = term0.children[0] as ConditionalNode;
+    expect(cond.type).toBe('conditional');
+    expect(cond.children.length).toBe(1);
+
+    const ineq = cond.children[0];
+    expect(ineq.type).toBe('inequality');
+    expect(ineq.children.length).toBe(2);
+    expect(ineq.operators.length).toBe(1);
+    expect(ineq.operators[0]).toBe('>');
+
+    const term1 = ineq.children[0] as TermNode;
+    expect(term1.children[0].value).toBe('x');
+
+    const term2 = ineq.children[1] as TermNode;
+    expect(term2.children[0].value).toBe(2);
   });
 });

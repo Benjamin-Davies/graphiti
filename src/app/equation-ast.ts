@@ -1,5 +1,5 @@
 import { anyCharOf, digit, letter, Parjser } from 'parjs';
-import { map, maybe, or, then, between } from 'parjs/combinators';
+import { map, maybe, or, then, between, many } from 'parjs/combinators';
 
 import { defer, multiple, multipleSepBy, singleOrMap, softFailure } from './parser.utils';
 
@@ -50,9 +50,18 @@ const pParentheses: Parjser<ParenthesesNode> = defer(() => pSum).pipe(
   map(child => ({ children: [child], type: 'parentheses' })),
 );
 
-export type SubExpressionNode = NumberNode | PronumeralNode | ParenthesesNode;
+export interface ConditionalNode extends AstNode {
+  type: 'conditional';
+  children: [InequalityNode];
+}
+const pConditional: Parjser<ConditionalNode> = defer(() => pInequality).pipe(
+  between('{', '}'),
+  map(child => ({ children: [child], type: 'conditional' })),
+);
+
+export type SubExpressionNode = NumberNode | PronumeralNode | ParenthesesNode | ConditionalNode;
 const pSubExpression: Parjser<SubExpressionNode> = pParentheses.pipe(
-  or(pNumber, pPronumeral),
+  or(pConditional, pNumber, pPronumeral),
 );
 
 export interface ExponentialNode extends AstNode {
@@ -101,6 +110,28 @@ const pSum: Parjser<ExpressionNode> = pProduct.pipe(
 );
 
 export type ExpressionNode = SumNode | ProductNode | TermNode;
+
+export type InequalityOperator = '=' | '!=' | '>' | '<' | '>=' | '<=';
+const pInequalityOperator: Parjser<InequalityOperator> = or(
+  '<=',
+  '>=',
+  '<',
+  '>',
+)(or('=')('!=')) as Parjser<InequalityOperator>;
+
+export interface InequalityNode extends AstNode {
+  type: 'inequality';
+  children: ExpressionNode[];
+  operators: InequalityOperator[];
+}
+const pInequality: Parjser<InequalityNode> = pSum.pipe(
+  then(pInequalityOperator.pipe(then(pSum), many())),
+  map(([initial, following]) => ({
+    children: [initial, ...following.map(([_, e]) => e)],
+    type: 'inequality',
+    operators: following.map(([o, _]) => o),
+  })),
+);
 
 export interface EquationNode extends AstNode {
   type: 'equation';
