@@ -75,7 +75,7 @@ function loadEquations(): readonly Equation[] {
       return equation;
     });
   } catch (e) {
-    console.warn(e);
+    // console.warn(e);
     return [];
   }
 }

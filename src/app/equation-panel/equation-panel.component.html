@@ -2,6 +2,7 @@
 
 <p class="equation" *ngFor="let equation of equations.equations">
   <input [(ngModel)]="equation.text" autofocus>
+  <span *ngIf="equation.error !== null" class="error">Error</span>
   <button (click)="deleteEquation(equation)">X</button>
 </p>
 

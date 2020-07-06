@@ -1,6 +1,41 @@
-import { ImplicitParjser, ParjsCombinator, ParsingState, ResultKind } from 'parjs';
+import { ImplicitParjser, ParjsCombinator, ParsingState, ResultKind, Parjser } from 'parjs';
 import { many, map, then } from 'parjs/combinators';
 import { ParjserBase } from 'parjs/internal/parser';
+
+export function defer<T>(f: () => Parjser<T>): Parjser<T> {
+  return new DeferedParser(f as () => ParjserBase);
+}
+
+class DeferedParser extends ParjserBase {
+  get type() {
+    try {
+      return this.p.type;
+    } catch (_) {
+      return 'defer';
+    }
+  }
+  get expecting() {
+    try {
+      return this.p.expecting;
+    } catch (_) {
+      return 'defered value';
+    }
+  }
+
+  private pCache: ParjserBase | null = null;
+  private get p() {
+    return this.pCache ?? (this.pCache = this.f());
+  }
+
+  constructor(private f: () => ParjserBase) {
+    super();
+  }
+
+  // tslint:disable-next-line
+  _apply(ps: ParsingState) {
+    this.p.apply(ps);
+  }
+}
 
 export function multiple<T>(): ParjsCombinator<T, T[]> {
   return p =>
