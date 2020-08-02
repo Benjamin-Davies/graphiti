@@ -1,10 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Equation } from './equation';
-import { AstNode, NumberNode, TermNode, ExponentialNode } from './equation-ast';
+import { AstNode, NumberNode, TermNode, ExponentialNode, InequalityNode, InequalityOperator } from './equation-ast';
 
 export interface Context {
   [key: string]: number;
 }
+
+const inequalityOperators = new Map<
+  InequalityOperator,
+  (a: number, b: number) => boolean
+>();
+inequalityOperators.set('=', (a, b) => a === b);
+inequalityOperators.set('!=', (a, b) => a !== b);
+inequalityOperators.set('<', (a, b) => a < b);
+inequalityOperators.set('<=', (a, b) => a <= b);
+inequalityOperators.set('>', (a, b) => a > b);
+inequalityOperators.set('>=', (a, b) => a >= b);
 
 @Injectable({
   providedIn: 'root',
@@ -65,6 +76,17 @@ export class ExecEquationService {
         return (node as NumberNode).value;
       case 'parentheses':
         return this.evalNode(node.children[0], context);
+      case 'conditional':
+        const res = this.evalNode(node.children[0], context);
+        return Number.isNaN(res) ? NaN : 1;
+      case 'inequality':
+        return node.children.slice(1).reduce((a, bExp, i) => {
+          if (Number.isNaN(a)) { return NaN; }
+
+          const op = (node as InequalityNode).operators[i];
+          const b = this.evalNode(bExp, context);
+          return inequalityOperators.get(op)(a, b) ? b : NaN;
+        }, this.evalNode(node.children[0], context));
       default:
         throw new Error(`IDK ${node.type}`);
     }
